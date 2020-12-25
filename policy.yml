@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  AWS CloudFormation Template to create a IAM Policy for SQS, SES and  SNS.
+Parameters:
+  AWSAccountID:
+    Type:  String
+    Default: 11111111111
+  IAMUserName:
+    Type: String
+    
+Resources:
+###### Create IAM User #################
+  IAMUser:
+    Type: AWS::IAM::User
+    Properties: 
+      UserName: !Ref IAMUserName
+
+  AccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName:
+        Ref: IAMUser
+
+
+######  SQS  Inline Policy  ##################
+  IAMuserPolicySQS:
+      Type: AWS::IAM::Policy
+      DependsOn: IAMUser
+      Properties:
+        PolicyName: !Sub "${IAMUserName}-SQS-Policy"
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Sid: Stmt1608560694947
+              Action:
+                - 'sqs:AddPermission'
+                - 'sqs:ChangeMessageVisibility'
+                - 'sqs:ChangeMessageVisibilityBatch'
+                - 'sqs:CreateQueue'
+                - 'sqs:ListDeadLetterSourceQueues'
+                - 'sqs:ListQueueTags'
+                - 'sqs:ListQueues'
+                - 'sqs:ReceiveMessage'
+                - 'sqs:SendMessage'
+                - 'sqs:SendMessageBatch'
+              Effect: Allow
+              Resource: !Sub "arn:aws:sqs:eu-west-1:${AWSAccountID}:*"
+        Users:
+          - !Ref IAMUser
+#####  SNS Inline Policy   ##################
+  IAMuserPolicySNS:
+      Type: AWS::IAM::Policy
+      DependsOn: IAMUser
+      Properties:
+        PolicyName: !Sub "${IAMUserName}-SNS-Policy"
+        PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: Stmt1608585018062
+                Action:
+                  - 'sns:AddPermission'
+                  - 'sns:CheckIfPhoneNumberIsOptedOut'
+                  - 'sns:ConfirmSubscription'
+                  - 'sns:CreatePlatformApplication'
+                  - 'sns:CreatePlatformEndpoint'
+                  - 'sns:CreateTopic'
+                  - 'sns:GetEndpointAttributes'
+                  - 'sns:GetPlatformApplicationAttributes'
+                  - 'sns:GetSMSAttributes'
+                  - 'sns:GetSubscriptionAttributes'
+                  - 'sns:GetTopicAttributes'
+                  - 'sns:ListEndpointsByPlatformApplication'
+                  - 'sns:ListPhoneNumbersOptedOut'
+                  - 'sns:ListPlatformApplications'
+                  - 'sns:ListSubscriptions'
+                  - 'sns:ListSubscriptionsByTopic'
+                  - 'sns:ListTagsForResource'
+                  - 'sns:ListTopics'
+                  - 'sns:OptInPhoneNumber'
+                  - 'sns:Publish'
+                  - 'sns:RemovePermission'
+                  - 'sns:SetEndpointAttributes'
+                  - 'sns:SetPlatformApplicationAttributes'
+                  - 'sns:SetSMSAttributes'
+                  - 'sns:SetSubscriptionAttributes'
+                  - 'sns:SetTopicAttributes'
+                  - 'sns:Subscribe'
+                  - 'sns:TagResource'
+                  - 'sns:Unsubscribe'
+                  - 'sns:UntagResource'
+                Effect: Allow
+                Resource:  !Sub "arn:aws:sqs:eu-west-1:${AWSAccountID}:*"
+        Users:
+          - !Ref IAMUser
+ ######  SES Policy ########
+  IAMuserPolicySES:
+      Type: AWS::IAM::Policy
+      DependsOn: IAMUser
+      Properties:
+        PolicyName: !Sub "${IAMUserName}-SES-Policy"
+        PolicyDocument: 
+            Version: 2012-10-17
+            Statement:
+              - Sid: Stmt1608587697742
+                Action:
+                  - 'ses:CreateCustomVerificationEmailTemplate'
+                  - 'ses:CreateReceiptFilter'
+                  - 'ses:CreateReceiptRule'
+                  - 'ses:CreateReceiptRuleSet'
+                  - 'ses:CreateTemplate'
+                  - 'ses:DescribeReceiptRule'
+                  - 'ses:DescribeReceiptRuleSet'
+                  - 'ses:GetAccountSendingEnabled'
+                  - 'ses:GetCustomVerificationEmailTemplate'
+                  - 'ses:GetSendStatistics'
+                  - 'ses:GetTemplate'
+                  - 'ses:SendBulkTemplatedEmail'
+                  - 'ses:SendCustomVerificationEmail'
+                  - 'ses:SendEmail'
+                  - 'ses:SendRawEmail'
+                  - 'ses:SendTemplatedEmail'
+                Effect: Allow
+                Resource: !Sub "arn:aws:sqs:eu-west-1:${AWSAccountID}:*"
+        Users:
+          - !Ref IAMUser
